@@ -51,7 +51,7 @@ func PeriodicTasks(d time.Duration, quit <-chan struct{}) {
 			for j := range app.SyncQueues.Queues {
 				queue := app.SyncQueues.Queues[j]
 
-				log.Debugf("Queue [%s] length [%d]", queue.Name, len(queue.Messages))
+				// log.Debugf("Queue [%s] length [%d]", queue.Name, len(queue.Messages))
 				for i := 0; i < len(queue.Messages); i++ {
 					msg := &queue.Messages[i]
 					if msg.ReceiptHandle != "" {
@@ -376,7 +376,7 @@ func ReceiveMessage(w http.ResponseWriter, req *http.Request) {
 		}
 
 	}
-	log.Println("Getting Message from Queue:", queueName)
+	// log.Println("Getting Message from Queue:", queueName)
 
 	app.SyncQueues.Lock() // Lock the Queues
 	if len(app.SyncQueues.Queues[queueName].Messages) > 0 {
@@ -423,7 +423,7 @@ func ReceiveMessage(w http.ResponseWriter, req *http.Request) {
 			},
 		}
 	} else {
-		log.Println("No messages in Queue:", queueName)
+		// log.Println("No messages in Queue:", queueName)
 		respStruct = app.ReceiveMessageResponse{Xmlns: "http://queue.amazonaws.com/doc/2012-11-05/", Result: app.ReceiveMessageResult{}, Metadata: app.ResponseMetadata{RequestId: "00000000-0000-0000-0000-000000000000"}}
 	}
 	app.SyncQueues.Unlock() // Unlock the Queues

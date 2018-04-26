@@ -236,6 +236,7 @@ func Publish(w http.ResponseWriter, req *http.Request) {
 	subject := req.FormValue("Subject")
 	messageBody := req.FormValue("Message")
 	messageStructure := req.FormValue("MessageStructure")
+	messageAttributes := extractMessageAttributes(req, "")
 
 	arnSegments := strings.Split(topicArn, ":")
 	topicName := arnSegments[len(arnSegments)-1]
@@ -267,14 +268,15 @@ func Publish(w http.ResponseWriter, req *http.Request) {
 						msg.MessageBody = []byte(messageBody)
 					}
 
-					msg.MD5OfMessageAttributes = common.GetMD5Hash("GoAws")
+					msg.MD5OfMessageAttributes = hashAttributes(messageAttributes)
 					msg.MD5OfMessageBody = common.GetMD5Hash(messageBody)
+					msg.MessageAttributes = messageAttributes
 					msg.Uuid, _ = common.NewUUID()
 					app.SyncQueues.Lock()
 					app.SyncQueues.Queues[queueName].Messages = append(app.SyncQueues.Queues[queueName].Messages, msg)
 					app.SyncQueues.Unlock()
-
-					common.LogMessage(fmt.Sprintf("%s: Topic: %s(%s), Message: %s\n", time.Now().Format("2006-01-02 15:04:05"), topicName, queueName, msg.MessageBody))
+					log.Println("Publish message:", msg.MessageBody, msg.MessageAttributes)
+					common.LogMessage(fmt.Sprintf("%s: Topic: %s(%s), Message: %s, %s\n", time.Now().Format("2006-01-02 15:04:05"), topicName, queueName, msg.MessageBody, msg.MessageAttributes))
 				} else {
 					common.LogMessage(fmt.Sprintf("%s: Queue %s does not exist, message discarded\n", time.Now().Format("2006-01-02 15:04:05"), queueName))
 				}

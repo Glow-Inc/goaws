@@ -1,4 +1,4 @@
-package gosqs
+package gosns
 
 import (
 	"crypto/md5"
@@ -21,12 +21,12 @@ func extractMessageAttributes(req *http.Request, prefix string) map[string]app.M
 	}
 
 	for i := 1; true; i++ {
-		name := req.FormValue(fmt.Sprintf("%sMessageAttribute.%d.Name", prefix, i))
+		name := req.FormValue(fmt.Sprintf("%sMessageAttributes.entry.%d.Name", prefix, i))
 		if name == "" {
 			break
 		}
 
-		dataType := req.FormValue(fmt.Sprintf("%sMessageAttribute.%d.Value.DataType", prefix, i))
+		dataType := req.FormValue(fmt.Sprintf("%sMessageAttributes.entry.%d.Value.DataType", prefix, i))
 		if dataType == "" {
 			log.Warnf("DataType of MessageAttribute %s is missing, MD5 checksum will most probably be wrong!\n", name)
 			continue
@@ -34,7 +34,7 @@ func extractMessageAttributes(req *http.Request, prefix string) map[string]app.M
 
 		// StringListValue and BinaryListValue is currently not implemented
 		for _, valueKey := range [...]string{"StringValue", "BinaryValue"} {
-			value := req.FormValue(fmt.Sprintf("%sMessageAttribute.%d.Value.%s", prefix, i, valueKey))
+			value := req.FormValue(fmt.Sprintf("%sMessageAttributes.entry.%d.Value.%s", prefix, i, valueKey))
 			if value != "" {
 				attributes[name] = app.MessageAttributeValue{name, dataType, value, valueKey}
 			}
